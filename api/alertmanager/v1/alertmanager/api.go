@@ -25,18 +25,26 @@ import (
 
 	"github.com/rs3000/client_golang/api"
 	"github.com/prometheus/common/model"
+	"github.com/prometheus/alertmanager/config"
 )
 
 const (
 	statusAPIError = 422
 	apiPrefix      = "/api/v1"
 
+	epStatus      = "/status"
 	epSilence     = "/silence/:id"
 	epSilences    = "/silences"
 	epAlerts      = "/alerts"
 	epAlertGroups = "/alerts/groups"
 )
 
+type ServerStatus struct {
+	ConfigYAML  string            `json:"configYAML"`
+	ConfigJSON  *config.Config    `json:"configJSON"`
+	VersionInfo map[string]string `json:"versionInfo"`
+	Uptime      time.Time         `json:"uptime"`
+	TODO        json.RawMessage   `json:"meshStatus"`
 }
 
 // apiClient wraps a regular client and processes successful API responses.
@@ -91,6 +99,35 @@ func (c apiClient) Do(ctx context.Context, req *http.Request) (*http.Response, [
 	}
 
 	return resp, []byte(result.Data), err
+}
+
+type StatusAPI interface {
+	// Get the server status, config, uptime, etc.
+	Get(ctx context.Context) (*ServerStatus, error)
+}
+
+func NewStatusAPI(c api.Client) StatusAPI {
+	return &httpStatusAPI{client: apiClient{c}}
+}
+
+type httpStatusAPI struct {
+	client api.Client
+}
+
+func (h *httpStatusAPI) Get(ctx context.Context) (*ServerStatus, error) {
+	u := h.client.URL(epStatus, nil)
+
+	req, _ := http.NewRequest("GET", u.String(), nil)
+
+	_, body, err := h.client.Do(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	var ss *ServerStatus
+	err = json.Unmarshal(body, &ss)
+
+	return ss, err
 }
 
 type AlertAPI interface {
