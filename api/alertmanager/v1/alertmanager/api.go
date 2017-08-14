@@ -32,11 +32,11 @@ const (
 	statusAPIError = 422
 	apiPrefix      = "/api/v1"
 
-	epStatus      = "/status"
-	epSilence     = "/silence/:id"
-	epSilences    = "/silences"
-	epAlerts      = "/alerts"
-	epAlertGroups = "/alerts/groups"
+	epStatus      = apiPrefix + "/status"
+	epSilence     = apiPrefix + "/silence/:id"
+	epSilences    = apiPrefix + "/silences"
+	epAlerts      = apiPrefix + "/alerts"
+	epAlertGroups = apiPrefix + "/alerts/groups"
 )
 
 type ServerStatus struct {
