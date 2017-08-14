@@ -117,7 +117,7 @@ type httpStatusAPI struct {
 func (h *httpStatusAPI) Get(ctx context.Context) (*ServerStatus, error) {
 	u := h.client.URL(epStatus, nil)
 
-	req, _ := http.NewRequest("GET", u.String(), nil)
+	req, _ := http.NewRequest(http.MethodGet, u.String(), nil)
 
 	_, body, err := h.client.Do(ctx, req)
 	if err != nil {
@@ -149,7 +149,7 @@ type httpAlertAPI struct {
 func (h *httpAlertAPI) List(ctx context.Context) ([]*model.Alert, error) {
 	u := h.client.URL(epAlerts, nil)
 
-	req, _ := http.NewRequest("GET", u.String(), nil)
+	req, _ := http.NewRequest(http.MethodGet, u.String(), nil)
 
 	_, body, err := h.client.Do(ctx, req)
 	if err != nil {
@@ -170,7 +170,7 @@ func (h *httpAlertAPI) Push(ctx context.Context, alerts ...*model.Alert) error {
 		return err
 	}
 
-	req, _ := http.NewRequest("POST", u.String(), &buf)
+	req, _ := http.NewRequest(http.MethodPost, u.String(), &buf)
 
 	_, _, err := h.client.Do(ctx, req)
 	return err
@@ -202,7 +202,7 @@ func (h *httpSilenceAPI) Get(ctx context.Context, id uint64) (*model.Silence, er
 		"id": strconv.FormatUint(id, 10),
 	})
 
-	req, _ := http.NewRequest("GET", u.String(), nil)
+	req, _ := http.NewRequest(http.MethodGet, u.String(), nil)
 
 	_, body, err := h.client.Do(ctx, req)
 	if err != nil {
@@ -220,7 +220,7 @@ func (h *httpSilenceAPI) Del(ctx context.Context, id uint64) error {
 		"id": strconv.FormatUint(id, 10),
 	})
 
-	req, _ := http.NewRequest("DELETE", u.String(), nil)
+	req, _ := http.NewRequest(http.MethodDelete, u.String(), nil)
 
 	_, _, err := h.client.Do(ctx, req)
 	return err
@@ -242,10 +242,10 @@ func (h *httpSilenceAPI) Set(ctx context.Context, sil *model.Silence) (uint64, e
 		u = h.client.URL(epSilence, map[string]string{
 			"id": strconv.FormatUint(sil.ID, 10),
 		})
-		method = "PUT"
+		method = http.MethodPut
 	} else {
 		u = h.client.URL(epSilences, nil)
-		method = "POST"
+		method = http.MethodPost
 	}
 
 	req, _ := http.NewRequest(method, u.String(), &buf)
@@ -266,7 +266,7 @@ func (h *httpSilenceAPI) Set(ctx context.Context, sil *model.Silence) (uint64, e
 func (h *httpSilenceAPI) List(ctx context.Context) ([]*model.Silence, error) {
 	u := h.client.URL(epSilences, nil)
 
-	req, _ := http.NewRequest("GET", u.String(), nil)
+	req, _ := http.NewRequest(http.MethodGet, u.String(), nil)
 
 	_, body, err := h.client.Do(ctx, req)
 	if err != nil {
